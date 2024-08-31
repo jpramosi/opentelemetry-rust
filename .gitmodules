@@ -4,4 +4,4 @@
 	branch = tags/v1.0.0
 [submodule "opentelemetry-tracing"]
 	path = opentelemetry-tracing
-	url = git@github.com:jpramosi/tracing-opentelemetry.git
+	url = https://github.com/jpramosi/tracing-opentelemetry

@@ -72,7 +72,7 @@ use opentelemetry::{Key, KeyValue, Value};
 /// This must implement [Hash], [PartialEq], and [Eq] so it may be used as
 /// HashMap keys and other de-duplication methods.
 #[derive(Clone, Default, Debug, PartialEq, Eq)]
-pub(crate) struct AttributeSet(Vec<KeyValue>, u64);
+pub struct AttributeSet(Vec<KeyValue>, u64);
 
 impl From<&[KeyValue]> for AttributeSet {
     fn from(values: &[KeyValue]) -> Self {
@@ -110,12 +110,12 @@ impl AttributeSet {
     }
 
     /// Iterate over key value pairs in the set
-    pub(crate) fn iter(&self) -> impl Iterator<Item = (&Key, &Value)> {
+    pub fn iter(&self) -> impl Iterator<Item = (&Key, &Value)> {
         self.0.iter().map(|kv| (&kv.key, &kv.value))
     }
 
     /// Returns the underlying Vec of KeyValue pairs
-    pub(crate) fn into_vec(self) -> Vec<KeyValue> {
+    pub fn into_vec(self) -> Vec<KeyValue> {
         self.0
     }
 }

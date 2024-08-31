@@ -1,4 +1,4 @@
-use crate::{Array, Key, StringValue, Value};
+use crate::{trace::TraceContext, Array, Key, StringValue, Value};
 use std::{borrow::Cow, collections::HashMap, time::SystemTime};
 
 /// SDK implemented trait for managing log records
@@ -19,6 +19,12 @@ pub trait LogRecord {
 
     /// Sets the observed event timestamp.
     fn set_observed_timestamp(&mut self, timestamp: SystemTime);
+
+    /// Sets the trace context.
+    fn set_trace_context(&mut self, context: TraceContext);
+
+    /// Gets the trace context.
+    fn get_mut_trace_context(&mut self) -> &mut Option<TraceContext>;
 
     /// Sets severity as text.
     fn set_severity_text(&mut self, text: &'static str);

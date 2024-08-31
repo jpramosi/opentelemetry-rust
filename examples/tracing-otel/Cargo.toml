@@ -1,0 +1,51 @@
+[package]
+name = "tracing-otel"
+version = "0.1.0"
+edition = "2021"
+license = "Apache-2.0"
+publish = false
+
+[dependencies]
+clap = { version = "4", features = ["derive"] }
+dotenvy = { version = "0.15" }
+opentelemetry = { path = "../../opentelemetry", features = ["logs"] }
+opentelemetry-appender-tracing = { path = "../../opentelemetry-appender-tracing" }
+opentelemetry-otlp = { path = "../../opentelemetry-otlp", features = [
+    "http-proto",
+    "http-json",
+    "reqwest-client",
+] }
+opentelemetry-http = { path = "../../opentelemetry-http", features = [
+    "reqwest",
+    "reqwest-rustls",
+] }
+opentelemetry-semantic-conventions = { path = "../../opentelemetry-semantic-conventions" }
+opentelemetry_sdk = { path = "../../opentelemetry-sdk", features = [
+    "logs",
+    "rt-tokio",
+] }
+opentelemetry-stdout = { path = "../../opentelemetry-stdout", features = [
+    "logs",
+    "trace",
+    "metrics",
+] }
+opentelemetry-tracing = { path = "../../opentelemetry-tracing" }
+log = { workspace = true }
+reqwest = { version = "0.12", default-features = false, features = [
+    "brotli",
+    "cookies",
+    "deflate",
+    "gzip",
+    "json",
+    "multipart",
+    "rustls-tls",
+    "rustls-tls-native-roots",
+    "socks",
+    "stream",
+    "trust-dns",
+] }
+serde_json = { workspace = true }
+tokio = { workspace = true }
+tracing = { workspace = true }
+tracing-core = { workspace = true }
+tracing-subscriber = { workspace = true }

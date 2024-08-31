@@ -166,7 +166,7 @@ use std::borrow::Cow;
 use std::time;
 use thiserror::Error;
 
-pub(crate) mod context;
+pub mod context;
 pub mod noop;
 mod span;
 mod span_context;
@@ -178,7 +178,7 @@ pub use self::{
         get_active_span, mark_span_as_active, FutureExt, SpanRef, TraceContextExt, WithContext,
     },
     span::{Span, SpanKind, Status},
-    span_context::{SpanContext, SpanId, TraceFlags, TraceId, TraceState},
+    span_context::{SpanContext, SpanId, TraceContext, TraceFlags, TraceId, TraceState},
     tracer::{SamplingDecision, SamplingResult, SpanBuilder, Tracer},
     tracer_provider::TracerProvider,
 };

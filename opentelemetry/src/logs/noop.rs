@@ -2,6 +2,7 @@ use std::{borrow::Cow, sync::Arc, time::SystemTime};
 
 use crate::{
     logs::{AnyValue, LogRecord, Logger, LoggerProvider, Severity},
+    trace::TraceContext,
     InstrumentationLibrary, Key, KeyValue,
 };
 
@@ -36,7 +37,9 @@ impl LoggerProvider for NoopLoggerProvider {
 
 #[derive(Debug, Clone, Default)]
 /// A no-operation log record that implements the LogRecord trait.
-pub struct NoopLogRecord;
+pub struct NoopLogRecord {
+    trace_context: Option<TraceContext>,
+}
 
 impl LogRecord for NoopLogRecord {
     // Implement the LogRecord trait methods with empty bodies.
@@ -46,6 +49,12 @@ impl LogRecord for NoopLogRecord {
     fn set_timestamp(&mut self, _timestamp: SystemTime) {}
     #[inline]
     fn set_observed_timestamp(&mut self, _timestamp: SystemTime) {}
+    #[inline]
+    fn set_trace_context(&mut self, _context: TraceContext) {}
+    #[inline]
+    fn get_mut_trace_context(&mut self) -> &mut Option<TraceContext> {
+        &mut self.trace_context
+    }
     #[inline]
     fn set_severity_text(&mut self, _text: &'static str) {}
     #[inline]
@@ -85,7 +94,7 @@ impl Logger for NoopLogger {
     type LogRecord = NoopLogRecord;
 
     fn create_log_record(&self) -> Self::LogRecord {
-        NoopLogRecord {}
+        NoopLogRecord::default()
     }
     fn emit(&self, _record: Self::LogRecord) {}
     #[cfg(feature = "logs_level_enabled")]

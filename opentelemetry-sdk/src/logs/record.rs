@@ -1,7 +1,7 @@
 use crate::growable_array::GrowableArray;
 use opentelemetry::{
     logs::{AnyValue, Severity},
-    trace::{SpanContext, SpanId, TraceFlags, TraceId},
+    trace::TraceContext,
     Key,
 };
 use std::{borrow::Cow, time::SystemTime};
@@ -72,6 +72,14 @@ impl opentelemetry::logs::LogRecord for LogRecord {
         self.observed_timestamp = Some(timestamp);
     }
 
+    fn set_trace_context(&mut self, context: TraceContext) {
+        self.trace_context = Some(context);
+    }
+
+    fn get_mut_trace_context(&mut self) -> &mut Option<TraceContext> {
+        return &mut self.trace_context;
+    }
+
     fn set_severity_text(&mut self, severity_text: &'static str) {
         self.severity_text = Some(severity_text);
     }
@@ -126,33 +134,11 @@ impl LogRecord {
     }
 }
 
-/// TraceContext stores the trace context for logs that have an associated
-/// span.
-#[derive(Debug, Clone, PartialEq)]
-#[non_exhaustive]
-pub struct TraceContext {
-    /// Trace id
-    pub trace_id: TraceId,
-    /// Span Id
-    pub span_id: SpanId,
-    /// Trace flags
-    pub trace_flags: Option<TraceFlags>,
-}
-
-impl From<&SpanContext> for TraceContext {
-    fn from(span_context: &SpanContext) -> Self {
-        TraceContext {
-            trace_id: span_context.trace_id(),
-            span_id: span_context.span_id(),
-            trace_flags: Some(span_context.trace_flags()),
-        }
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
     use opentelemetry::logs::{AnyValue, LogRecord as _, Severity};
+    use opentelemetry::trace::{SpanId, TraceFlags, TraceId};
     use std::borrow::Cow;
     use std::time::SystemTime;
 
@@ -230,21 +216,21 @@ mod tests {
 
     #[test]
     fn compare_trace_context() {
-        let trace_context = TraceContext {
-            trace_id: TraceId::from_u128(1),
-            span_id: SpanId::from_u64(1),
-            trace_flags: Some(TraceFlags::default()),
-        };
+        let trace_context = TraceContext::new(
+            TraceId::from_u128(1),
+            SpanId::from_u64(1),
+            Some(TraceFlags::default()),
+        );
 
         let trace_context_cloned = trace_context.clone();
 
         assert_eq!(trace_context, trace_context_cloned);
 
-        let trace_context_different = TraceContext {
-            trace_id: TraceId::from_u128(2),
-            span_id: SpanId::from_u64(2),
-            trace_flags: Some(TraceFlags::default()),
-        };
+        let trace_context_different = TraceContext::new(
+            TraceId::from_u128(2),
+            SpanId::from_u64(2),
+            Some(TraceFlags::default()),
+        );
 
         assert_ne!(trace_context, trace_context_different);
     }
@@ -260,11 +246,11 @@ mod tests {
             severity_number: Some(Severity::Error),
             body: Some(AnyValue::String("Test body".into())),
             attributes: LogRecordAttributes::new(),
-            trace_context: Some(TraceContext {
-                trace_id: TraceId::from_u128(1),
-                span_id: SpanId::from_u64(1),
-                trace_flags: Some(TraceFlags::default()),
-            }),
+            trace_context: Some(TraceContext::new(
+                TraceId::from_u128(1),
+                SpanId::from_u64(1),
+                Some(TraceFlags::default()),
+            )),
         };
         log_record.add_attribute(Key::new("key"), AnyValue::String("value".into()));
 

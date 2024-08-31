@@ -449,6 +449,45 @@ impl From<TraceStateError> for TraceError {
     }
 }
 
+/// TraceContext stores the trace context for logs that have an associated
+/// span.
+#[derive(Debug, Clone, PartialEq)]
+#[non_exhaustive]
+pub struct TraceContext {
+    /// Trace id
+    pub trace_id: TraceId,
+    /// Span Id
+    pub span_id: SpanId,
+    /// Trace flags
+    pub trace_flags: Option<TraceFlags>,
+}
+
+impl TraceContext {
+    /// Creates a new trace context which references a trace event.
+    pub fn new(trace_id: TraceId, span_id: SpanId, trace_flags: Option<TraceFlags>) -> Self {
+        Self {
+            trace_id,
+            span_id,
+            trace_flags,
+        }
+    }
+
+    /// Checks whether the trace context is empty.
+    pub fn is_empty(&self) -> bool {
+        self.trace_id.0 == 0
+    }
+}
+
+impl From<&SpanContext> for TraceContext {
+    fn from(span_context: &SpanContext) -> Self {
+        Self {
+            trace_id: span_context.trace_id(),
+            span_id: span_context.span_id(),
+            trace_flags: Some(span_context.trace_flags()),
+        }
+    }
+}
+
 /// Immutable portion of a [`Span`] which can be serialized and propagated.
 ///
 /// This representation conforms to the [W3C TraceContext specification].

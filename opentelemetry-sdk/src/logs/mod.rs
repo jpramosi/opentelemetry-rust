@@ -8,7 +8,7 @@ pub use log_processor::{
     BatchConfig, BatchConfigBuilder, BatchLogProcessor, BatchLogProcessorBuilder, LogProcessor,
     SimpleLogProcessor,
 };
-pub use record::{LogRecord, TraceContext};
+pub use record::LogRecord;
 
 use opentelemetry::InstrumentationLibrary;
 /// `LogData` represents a single log event without resource context.

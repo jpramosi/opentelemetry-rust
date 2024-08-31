@@ -1,7 +1,9 @@
 use opentelemetry::{
     logs::{AnyValue, LogRecord, Logger, LoggerProvider, Severity},
+    trace::{TraceContext, TraceContextExt},
     Key,
 };
+use opentelemetry_tracing::OpenTelemetrySpanExt;
 use std::borrow::Cow;
 use tracing_core::Level;
 #[cfg(feature = "experimental_metadata_attributes")]
@@ -182,6 +184,31 @@ where
         visitor.visit_experimental_metadata(meta);
         // Visit fields.
         event.record(&mut visitor);
+
+        // If no data found, append tracing information from
+        // opentelemetry-tracing (formerly tracing-opentelemetry)
+        match log_record.get_mut_trace_context() {
+            Some(context) => {
+                if context.is_empty() {
+                    let s = tracing::Span::current().context();
+                    let sr = s.span();
+                    let sc = sr.span_context();
+                    context.trace_id = sc.trace_id();
+                    context.span_id = sc.span_id();
+                    context.trace_flags = Some(sc.trace_flags());
+                }
+            }
+            None => {
+                let s = tracing::Span::current().context();
+                let sr = s.span();
+                let sc = sr.span_context();
+                log_record.set_trace_context(TraceContext::new(
+                    sc.trace_id(),
+                    sc.span_id(),
+                    Some(sc.trace_flags()),
+                ))
+            }
+        }
 
         //emit record
         self.logger.emit(log_record);
